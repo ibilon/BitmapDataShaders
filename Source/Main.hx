@@ -22,15 +22,16 @@ class Main extends Sprite {
 
 			var shader = "varying vec2 vTexCoord;
 			uniform sampler2D uImage0;
-
+			uniform vec3 param;
+			
 			void main (void)
 			{
 				vec4 color = texture2D (uImage0, vTexCoord);
-				gl_FragColor = vec4 (1 - color.r, 1 - color.g, 1 - color.b, color.a);
+				gl_FragColor = vec4 (color.r + param.r, color.g + param.g, color.b + param.b, color.a);
 			}";
 
-			var c1_bitmap = new Bitmap (ShaderCompositing.composite (c1, shader));
-			var c2_bitmap = new Bitmap (ShaderCompositing.composite (c2, shader));
+			var c1_bitmap = new Bitmap (ShaderCompositing.composite (c1, shader, [{name: "param", value: [0.2, 0.5, 0.2], type: Float3}]));
+			var c2_bitmap = new Bitmap (ShaderCompositing.composite (c2, shader, [{name: "param", value: [0.2, 0.5, 0.2], type: Float3}]));
 
 			addChild (c1_bitmap);
 			addChild (c2_bitmap);

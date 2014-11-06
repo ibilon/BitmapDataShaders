@@ -87,7 +87,7 @@ class ShaderCompositing {
 
 	}
 
-	public static function composite (group:LayerGroup, fragmentShader:String, ?params:Array<{name:String, value:Dynamic}>) : BitmapData {
+	public static function composite (group:LayerGroup, fragmentShader:String, ?params:Array<{name:String, value:Dynamic, type:UniformType}>) : BitmapData {
 
 		GL.bindFramebuffer (GL.FRAMEBUFFER, fb_framebuffer);
 
@@ -109,25 +109,31 @@ class ShaderCompositing {
 				
 				var uni = GL.getUniformLocation (program, param.name);
 				
-				if (Std.is (param.value, Int)) {
-					
-					GL.uniform1i (uni, cast param.value);
-					
-				} else if (Std.is (param.value, Float)) {
-					
-					GL.uniform1f (uni, cast param.value);
-					
-				} else if (Std.is (param.value, Int32Array)) {
-					
-					GL.uniform1iv (uni, cast param.value);
-					
-				} else if (Std.is (param.value, Float32Array)) {
-					
-					GL.uniform1fv (uni, cast param.value);
-					
-				} else {
-					
-					trace ('Unkown type for uniform "${param.name}"');
+				switch (param.type) {
+				
+					case Int:
+						GL.uniform1i (uni, cast param.value);
+						
+					case Float:
+						GL.uniform1f (uni, cast param.value);
+						
+					case Int2:
+						GL.uniform2iv (uni, cast param.value);
+						
+					case Float2:
+						GL.uniform2fv (uni, cast param.value);
+						
+					case Int3:
+						GL.uniform3iv (uni, cast param.value);
+						
+					case Float3:
+						GL.uniform3fv (uni, cast param.value);
+						
+					case Int4:
+						GL.uniform4iv (uni, cast param.value);
+						
+					case Float4:
+						GL.uniform4fv (uni, cast param.value);
 					
 				}
 				
@@ -200,6 +206,19 @@ class ShaderCompositing {
 	}
 
 }
+
+enum UniformType {
+	
+	Int;
+	Float;
+	Int2;
+	Float2;
+	Int3;
+	Float3;
+	Int4;
+	Float4;
+	
+}	
 
 class LayerGroup {
 
