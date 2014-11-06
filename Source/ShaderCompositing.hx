@@ -87,7 +87,7 @@ class ShaderCompositing {
 
 	}
 
-	public static function composite (group:LayerGroup, fragmentShader:String) : BitmapData {
+	public static function composite (group:LayerGroup, fragmentShader:String, ?params:Array<{name:String, value:Dynamic}>) : BitmapData {
 
 		GL.bindFramebuffer (GL.FRAMEBUFFER, fb_framebuffer);
 
@@ -102,10 +102,42 @@ class ShaderCompositing {
 		GL.enableVertexAttribArray (vertexAttribute);
 		GL.enableVertexAttribArray (textureAttribute);
 		GL.uniform1i (imageUniform, 0);
+		
+		if (params != null) {
+			
+			for (param in params) {
+				
+				var uni = GL.getUniformLocation (program, param.name);
+				
+				if (Std.is (param.value, Int)) {
+					
+					GL.uniform1i (uni, cast param.value);
+					
+				} else if (Std.is (param.value, Float)) {
+					
+					GL.uniform1f (uni, cast param.value);
+					
+				} else if (Std.is (param.value, Int32Array)) {
+					
+					GL.uniform1iv (uni, cast param.value);
+					
+				} else if (Std.is (param.value, Float32Array)) {
+					
+					GL.uniform1fv (uni, cast param.value);
+					
+				} else {
+					
+					trace ('Unkown type for uniform "${param.name}"');
+					
+				}
+				
+			}
+			
+		}
 
 		GL.viewport (0, 0, group.width, group.height);
 
-		GL.clearColor (0.0, 0.0, 0.0, 1.0);
+		GL.clearColor (0.0, 0.0, 0.0, 0.0);
 		GL.clear (GL.COLOR_BUFFER_BIT);
 
 		GL.enable (GL.BLEND);
