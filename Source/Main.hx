@@ -30,8 +30,8 @@ class Main extends Sprite {
 				gl_FragColor = vec4 (color.r + param.r, color.g + param.g, color.b + param.b, color.a);
 			}";
 
-			var c1_bitmap = new Bitmap (ShaderCompositing.composite (c1, shader, [{name: "param", value: [0.2, 0.5, 0.2], type: Float3}]));
-			var c2_bitmap = new Bitmap (ShaderCompositing.composite (c2, shader, [{name: "param", value: [0.2, 0.5, 0.2], type: Float3}]));
+			var c1_bitmap = new Bitmap (ShaderCompositing.compositePerLayerParams (c1, shader, [[{name: "param", value: [0.2, 0.5, 0.2], type: Float3}],[{name: "param", value: [0.2, 0.2, 0.2], type: Float3}],[{name: "param", value: [0.5, 0.5, 0.2], type: Float3}]]));
+			var c2_bitmap = new Bitmap (ShaderCompositing.compositeParams (c2, shader, [{name: "param", value: [0.2, 0.5, 0.2], type: Float3}]));
 
 			addChild (c1_bitmap);
 			addChild (c2_bitmap);

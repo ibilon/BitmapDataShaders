@@ -86,8 +86,26 @@ class ShaderCompositing {
 		return new LayerGroup (textures, layers[0].width, layers[0].height);
 
 	}
+	
+	public static function composite (group:LayerGroup, fragmentShader:String) : BitmapData {
+		
+		return compositeMulti (group, fragmentShader, null, null);
+		
+	}
 
-	public static function composite (group:LayerGroup, fragmentShader:String, ?params:Array<{name:String, value:Dynamic, type:UniformType}>) : BitmapData {
+	public static function compositeParams (group:LayerGroup, fragmentShader:String, params:Array<{name:String, value:Dynamic, type:UniformType}>) : BitmapData {
+		
+		return compositeMulti (group, fragmentShader, null, params);
+		
+	}
+	
+	public static function compositePerLayerParams (group:LayerGroup, fragmentShader:String, perLayerParams:Array<Array<{name:String, value:Dynamic, type:UniformType}>>) : BitmapData {
+		
+		return compositeMulti (group, fragmentShader, perLayerParams, null);
+		
+	}
+
+	public static function compositeMulti (group:LayerGroup, fragmentShader:String, perLayerParams:Array<Array<{name:String, value:Dynamic, type:UniformType}>>, params:Array<{name:String, value:Dynamic, type:UniformType}>) : BitmapData {
 
 		GL.bindFramebuffer (GL.FRAMEBUFFER, fb_framebuffer);
 
@@ -103,7 +121,7 @@ class ShaderCompositing {
 		GL.enableVertexAttribArray (textureAttribute);
 		GL.uniform1i (imageUniform, 0);
 		
-		if (params != null) {
+		var sendUnis = function (params:Array<{name:String, value:Dynamic, type:UniformType}>) : Void {
 			
 			for (param in params) {
 				
@@ -139,6 +157,12 @@ class ShaderCompositing {
 				
 			}
 			
+		};
+		
+		if (params != null) {
+			
+			sendUnis (params);
+			
 		}
 
 		GL.viewport (0, 0, group.width, group.height);
@@ -155,13 +179,22 @@ class ShaderCompositing {
 		GL.vertexAttribPointer (vertexAttribute, 3, GL.FLOAT, false, 5 * Float32Array.SBYTES_PER_ELEMENT, 0);
 		GL.vertexAttribPointer (textureAttribute, 2, GL.FLOAT, false, 5 * Float32Array.SBYTES_PER_ELEMENT, 3 * Float32Array.SBYTES_PER_ELEMENT);
 
+		var layerIndex = 0;
 		for (texture in group.textures) {
-
+			
+			if (perLayerParams != null) {
+				
+				sendUnis (perLayerParams [layerIndex]);
+				
+			}
+			
 			GL.activeTexture (GL.TEXTURE0);
 			GL.bindTexture (GL.TEXTURE_2D, texture);
 			GL.enable (GL.TEXTURE_2D);
 
 			GL.drawArrays (GL.TRIANGLE_STRIP, 0, 4);
+			
+			layerIndex++;
 
 		}
 
